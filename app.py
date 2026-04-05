@@ -207,7 +207,9 @@ The rule-based agent uses 6 deterministic business rules; the random agent sampl
 # Mount Gradio into FastAPI at root path
 app = gr.mount_gradio_app(app, demo, path="/")
 
-if __name__ == "__main__":
+def main():
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=7860)
 
+if __name__ == "__main__":
+    main()
