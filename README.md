@@ -194,13 +194,14 @@ helixdesk-openenv/
 
 ## Tasks
 
-HelixDesk OpenEnv ships with 3 graded tasks of increasing difficulty. Each task's `grade(env, agent)` function returns a score in `[0.0, 1.0]`.
+HelixDesk OpenEnv ships with 4 graded tasks of increasing difficulty. Each task's `grade(env, agent)` function returns a score in `[0.0, 1.0]`.
 
 | Task | Difficulty | Scoring Criteria |
 |---|---|---|
 | `easy_classify` | 🟢 Easy | Run 20 emails. Score = fraction of keyword-flagged emails correctly classified as **complaint** with **critical** priority. |
 | `medium_sla` | 🟡 Medium | Run 1 full episode (100 emails). Score = fraction of tickets resolved **within SLA deadline**. |
 | `hard_trend` | 🔴 Hard | Run 1 full episode. Score = 0.5 × (trend alerts caught / total surge events) + 0.5 × min(avg_csat / 4.0, 1.0). |
+| `expert_full` | ⚫ Expert | Product of 5 sub-scores: keyword miss rate=0, SLA≥85%, trend catch≥80%, CSAT≥4.5, misclassify≤10%. One weakness tanks the whole score. |
 
 ```bash
 # Run all tasks against rule + random baselines
@@ -213,10 +214,10 @@ python baseline.py
 
 Scores are exact and reproducible with seed=42:
 
-| Agent | easy_classify | medium_sla | hard_trend |
-|---|---|---|---|
-| random | 0.000 | 0.448 | 0.415 |
-| rule   | 1.000 | 0.882 | 0.652 |
+| Agent | easy_classify | medium_sla | hard_trend | expert_full |
+|---|---|---|---|---|
+| random | 0.000 | 0.448 | 0.415 | 0.465 |
+| rule   | 1.000 | 0.882 | 0.652 | 0.623 |
 
 Run `python baseline.py` to reproduce exactly.
 

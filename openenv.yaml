@@ -7,3 +7,4 @@ tasks:
   - id: easy_classify
   - id: medium_sla
   - id: hard_trend
+  - id: expert_full

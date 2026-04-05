@@ -21,7 +21,7 @@ from rich.table import Table
 
 from helixdesk import HelixDeskEnv
 from helixdesk.agents import RuleAgent, RandomAgent
-from tasks import easy_classify, medium_sla, hard_trend
+from tasks import easy_classify, medium_sla, hard_trend, expert_full
 
 
 # ---------------------------------------------------------------------------
@@ -143,6 +143,7 @@ def run_baseline():
         "easy_classify": easy_classify,
         "medium_sla": medium_sla,
         "hard_trend": hard_trend,
+        "expert_full": expert_full,
     }
 
     # Results matrix
@@ -162,6 +163,7 @@ def run_baseline():
     table.add_column("easy_classify", justify="right")
     table.add_column("medium_sla", justify="right")
     table.add_column("hard_trend", justify="right")
+    table.add_column("expert_full", justify="right")
 
     for agent_name, scores in results.items():
         table.add_row(
@@ -169,6 +171,7 @@ def run_baseline():
             f"{scores['easy_classify']:.3f}",
             f"{scores['medium_sla']:.3f}",
             f"{scores['hard_trend']:.3f}",
+            f"{scores['expert_full']:.3f}",
         )
 
     console.print()
