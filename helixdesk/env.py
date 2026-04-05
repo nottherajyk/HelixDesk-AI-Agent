@@ -477,3 +477,38 @@ class HelixDeskEnv(gymnasium.Env):
         obs = np.clip(obs, -1.0, 1.0)
 
         return obs
+
+    # ------------------------------------------------------------------
+    # Typed API (Pydantic wrappers)
+    # ------------------------------------------------------------------
+
+    def typed_reset(
+        self,
+        seed: int | None = None,
+        options: dict | None = None,
+    ) -> tuple[np.ndarray, dict[str, Any], "HelixObservation"]:
+        """Reset the environment and return typed observation alongside numpy.
+
+        Returns:
+            (obs_numpy, info, obs_typed) — the third element is a Pydantic model.
+        """
+        from helixdesk.models import HelixObservation
+
+        obs, info = self.reset(seed=seed, options=options)
+        return obs, info, HelixObservation.from_numpy(obs)
+
+    def typed_step(
+        self, action: np.ndarray | list[int]
+    ) -> tuple[np.ndarray, float, bool, bool, dict[str, Any], "HelixObservation", "HelixReward"]:
+        """Step the environment and return typed models alongside numpy.
+
+        Returns:
+            (obs_numpy, reward, terminated, truncated, info, obs_typed, reward_typed)
+        """
+        from helixdesk.models import HelixObservation, HelixReward
+
+        obs, reward, terminated, truncated, info = self.step(action)
+        obs_typed = HelixObservation.from_numpy(obs)
+        reward_typed = HelixReward.from_info(reward, info)
+        return obs, reward, terminated, truncated, info, obs_typed, reward_typed
+

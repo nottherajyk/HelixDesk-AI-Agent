@@ -1,0 +1,9 @@
+name: HelixDesk OpenEnv
+version: 1.0.0
+task: customer-support-triage
+tags: [openenv]
+entry_point: helixdesk.env:HelixDeskEnv
+tasks:
+  - id: easy_classify
+  - id: medium_sla
+  - id: hard_trend

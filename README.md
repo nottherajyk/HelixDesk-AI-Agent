@@ -145,6 +145,7 @@ helixdesk-openenv/
 ├── helixdesk/
 │   ├── __init__.py          # exports HelixDeskEnv
 │   ├── env.py               # main environment class
+│   ├── models.py            # Pydantic typed wrappers (HelixObservation, HelixAction, HelixReward)
 │   ├── spaces.py            # observation & action space definitions
 │   ├── rewards.py           # reward function
 │   ├── simulator/           # simulation components
@@ -160,12 +161,82 @@ helixdesk-openenv/
 │   └── monitor/             # logging & visualization
 │       ├── episode_logger.py    # CSV per-step logger
 │       └── terminal_dashboard.py # Rich live dashboard
+├── tasks/                   # graded task definitions
+│   ├── easy_classify.py     # keyword-flag classification (easy)
+│   ├── medium_sla.py        # SLA compliance rate (medium)
+│   └── hard_trend.py        # trend detection + CSAT (hard)
 ├── tests/                   # pytest test suite
 ├── train.py                 # training entry point
 ├── evaluate.py              # evaluation with rich table output
+├── baseline.py              # GPT-4o + rule + random baseline runner
 ├── config.yaml              # all configurable parameters
+├── openenv.yaml             # OpenEnv manifest
+├── Dockerfile               # container image
 ├── requirements.txt         # Python dependencies
 └── README.md                # this file
+```
+
+---
+
+## Tasks
+
+HelixDesk OpenEnv ships with 3 graded tasks of increasing difficulty. Each task's `grade(env, agent)` function returns a score in `[0.0, 1.0]`.
+
+| Task | Difficulty | Scoring Criteria |
+|---|---|---|
+| `easy_classify` | 🟢 Easy | Run 20 emails. Score = fraction of keyword-flagged emails correctly classified as **complaint** with **critical** priority. |
+| `medium_sla` | 🟡 Medium | Run 1 full episode (100 emails). Score = fraction of tickets resolved **within SLA deadline**. |
+| `hard_trend` | 🔴 Hard | Run 1 full episode. Score = 0.5 × (trend alerts caught / total surge events) + 0.5 × min(avg_csat / 4.0, 1.0). |
+
+```bash
+# Run all tasks against rule + random baselines
+python baseline.py
+```
+
+---
+
+## Baseline Scores
+
+Scores from built-in agents (seed=42):
+
+| Agent | easy_classify | medium_sla | hard_trend |
+|---|---|---|---|
+| random | ~0.00 | ~0.50 | ~0.25 |
+| rule | ~1.00 | ~0.80 | ~0.55 |
+
+Run `python baseline.py` to reproduce. If `OPENAI_API_KEY` is set, GPT-4o results will also be included.
+
+---
+
+## Docker
+
+```bash
+# Build
+docker build -t helixdesk-openenv .
+
+# Run rule agent for 10 episodes
+docker run --rm helixdesk-openenv
+
+# Run with custom args
+docker run --rm helixdesk-openenv python train.py --agent random --episodes 50
+
+# Run baseline (requires API key)
+docker run --rm -e OPENAI_API_KEY=sk-... helixdesk-openenv python baseline.py
+```
+
+---
+
+## OpenEnv Compliance
+
+This environment follows the [OpenEnv](https://openenv.org) specification:
+
+- **`openenv.yaml`** declares the environment name, version, entry point, and task IDs.
+- Each task in `tasks/` exports a `grade(env, agent) -> float` function returning `[0.0, 1.0]`.
+- The environment is Gymnasium-compatible and passes `check_env()`.
+
+```bash
+# Validate (once openenv CLI is available)
+openenv validate
 ```
 
 ---
@@ -181,3 +252,4 @@ pytest tests/ -v
 ## License
 
 MIT
+
