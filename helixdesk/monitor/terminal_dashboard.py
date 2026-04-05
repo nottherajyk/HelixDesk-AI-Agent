@@ -5,6 +5,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import Any, Generator
 
+import numpy as np
 from rich.console import Console
 from rich.live import Live
 from rich.table import Table
@@ -57,7 +58,6 @@ class TerminalDashboard:
             reward: The reward received this step.
         """
         if action is not None:
-            import numpy as np
             act = np.asarray(action)
             classify_map = {0: "query", 1: "complaint", 2: "review"}
             priority_map = {0: "critical", 1: "high", 2: "medium", 3: "normal"}

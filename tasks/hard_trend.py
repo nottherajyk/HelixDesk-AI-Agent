@@ -1,4 +1,9 @@
 """Hard task: trend detection + CSAT quality + overdue control.
+
+Run one full episode (100 emails). Score = average of three components:
+  1. trend_score  = trend alerts caught / total surge events
+  2. csat_score   = min(avg_csat / 4.5, 1.0)
+  3. overdue_score = max(0, 1 - overdue_count / (steps * 0.10))
 """
 
 from __future__ import annotations

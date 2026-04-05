@@ -178,11 +178,13 @@ helixdesk-openenv/
 ├── tasks/                   # graded task definitions
 │   ├── easy_classify.py     # keyword-flag classification (easy)
 │   ├── medium_sla.py        # SLA compliance rate (medium)
-│   └── hard_trend.py        # trend detection + CSAT (hard)
+│   ├── hard_trend.py        # trend detection + CSAT (hard)
+│   └── expert_full.py       # full expert evaluation (expert)
 ├── tests/                   # pytest test suite
 ├── train.py                 # training entry point
 ├── evaluate.py              # evaluation with rich table output
 ├── baseline.py              # GPT-4o + rule + random baseline runner
+├── inference.py             # mandatory hackathon inference script
 ├── config.yaml              # all configurable parameters
 ├── openenv.yaml             # OpenEnv manifest
 ├── Dockerfile               # container image
@@ -200,8 +202,8 @@ HelixDesk OpenEnv ships with 4 graded tasks of increasing difficulty. Each task'
 |---|---|---|
 | `easy_classify` | 🟢 Easy | Run 20 emails. Score = fraction of keyword-flagged emails correctly classified as **complaint** with **critical** priority. |
 | `medium_sla` | 🟡 Medium | Run 1 full episode (100 emails). Score = fraction of tickets resolved **within SLA deadline**. |
-| `hard_trend` | 🔴 Hard | Run 1 full episode. Score = 0.5 × (trend alerts caught / total surge events) + 0.5 × min(avg_csat / 4.0, 1.0). |
-| `expert_full` | ⚫ Expert | Product of 5 sub-scores: keyword miss rate=0, SLA≥85%, trend catch≥80%, CSAT≥4.5, misclassify≤10%. One weakness tanks the whole score. |
+| `hard_trend` | 🔴 Hard | Run 1 full episode. Score = avg of (trend alerts caught / surge events, CSAT / 4.5, overdue control). |
+| `expert_full` | ⚫ Expert | Geometric mean of keyword score × classification accuracy × review abuse rate. One weakness tanks the whole score. |
 
 ```bash
 # Run all tasks against rule + random baselines
@@ -216,7 +218,7 @@ Scores are exact and reproducible with seed=42:
 
 | Agent  | easy_classify | medium_sla | hard_trend | expert_full |
 |--------|--------------|------------|------------|-------------|
-| random | 0.000        | 0.448      | 0.415      | 0.000       |
+| random | 0.000        | 0.337      | 0.415      | 0.000       |
 | rule   | 1.000        | 0.882      | 0.652      | 0.935       |
 
 Run `python baseline.py` to reproduce exactly.
@@ -247,7 +249,7 @@ This environment follows the [OpenEnv](https://openenv.org) specification:
 
 - **`openenv.yaml`** — declares environment name, version, entry point, and task IDs. Schema validated manually against the OpenEnv spec.
 - **Typed models** — `helixdesk/models.py` defines `HelixObservation`, `HelixAction`, `HelixReward` as Pydantic models.
-- **3 graded tasks** — `tasks/easy_classify.py`, `tasks/medium_sla.py`, `tasks/hard_trend.py` each export `grade(env, agent) -> float` in `[0.0, 1.0]`.
+- **4 graded tasks** — `tasks/easy_classify.py`, `tasks/medium_sla.py`, `tasks/hard_trend.py`, `tasks/expert_full.py` each export `grade(env, agent) -> float` in `[0.0, 1.0]`.
 - **Gymnasium compatible** — passes `gymnasium.utils.env_checker.check_env()` with 0 errors.
 - **Docker** — `docker build -t helixdesk-openenv . && docker run --rm helixdesk-openenv` starts cleanly.
 - **Baseline** — `python baseline.py` reproduces exact scores from the table above using seed=42.

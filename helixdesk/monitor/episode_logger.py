@@ -7,6 +7,8 @@ import os
 from pathlib import Path
 from typing import Any, TextIO
 
+import numpy as np
+
 
 class EpisodeLogger:
     """Logs one CSV row per environment step for post-training analysis.
@@ -77,7 +79,6 @@ class EpisodeLogger:
         }
 
         if action is not None:
-            import numpy as np
             action = np.asarray(action)
             if len(action) >= 4:
                 row["action_classify"] = int(action[0])
