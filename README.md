@@ -214,10 +214,10 @@ python baseline.py
 
 Scores are exact and reproducible with seed=42:
 
-| Agent | easy_classify | medium_sla | hard_trend | expert_full |
-|---|---|---|---|---|
-| random | 0.000 | 0.448 | 0.415 | 0.465 |
-| rule   | 1.000 | 0.882 | 0.652 | 0.623 |
+| Agent  | easy_classify | medium_sla | hard_trend | expert_full |
+|--------|--------------|------------|------------|-------------|
+| random | 0.000        | 0.448      | 0.415      | 0.000       |
+| rule   | 1.000        | 0.882      | 0.652      | 0.935       |
 
 Run `python baseline.py` to reproduce exactly.
 
