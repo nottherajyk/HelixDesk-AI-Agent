@@ -1,0 +1,22 @@
+OPENAI_API_KEY not set ? 
+skipping GPT-4o baseline
+  Running easy_classify with 
+random... 0.000
+  Running medium_sla with 
+random... 0.448
+  Running hard_trend with 
+random... 0.415
+  Running easy_classify with 
+rule... 1.000
+  Running medium_sla with 
+rule... 0.882
+  Running hard_trend with 
+rule... 0.652
+
+   HelixDesk Baseline Scores   
++-----------------------------+
+| Agent        | e? | m? | h? |
+|--------------+----+----+----|
+| random       | 0? | 0? | 0? |
+| rule         | 1? | 0? | 0? |
++-----------------------------+

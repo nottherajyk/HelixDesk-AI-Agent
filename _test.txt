@@ -1,0 +1,20 @@
+--- random ---
+resolved_on_time: 30, overdue_count (peak): 2
+total_tickets: 100
+SLA if resolved/total: 0.300
+SLA if 1 - overdue/total: 0.980
+Trend: caught=31, surges=97 -> 0.320
+CSAT: mean_csat=4.17 -> 0.887
+Overdue penalty -> 0.800
+Hard Trend Product: 0.227
+Hard Trend Average: 0.669
+--- rule ---
+resolved_on_time: 60, overdue_count (peak): 0
+total_tickets: 100
+SLA if resolved/total: 0.600
+SLA if 1 - overdue/total: 1.000
+Trend: caught=3, surges=100 -> 0.030
+CSAT: mean_csat=4.17 -> 0.887
+Overdue penalty -> 1.000
+Hard Trend Product: 0.027
+Hard Trend Average: 0.639

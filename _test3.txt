@@ -1,0 +1,6 @@
+--- random ---
+Medium SLA -> 0.448
+Hard Trend -> 0.415
+--- rule ---
+Medium SLA -> 0.882
+Hard Trend -> 0.652
