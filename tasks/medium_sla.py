@@ -23,7 +23,7 @@ def grade(env, agent) -> float:
         done = terminated or truncated
         
         # Accurately track assignments
-        if int(action[2]) < 4:
+        if int(action[2]) < 5:  # 5 employees: indices 0-4
             total_assigned += 1
             
         breakdown = info.get("reward_breakdown", {})

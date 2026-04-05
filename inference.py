@@ -8,7 +8,6 @@ import os
 import json
 import numpy as np
 from typing import List, Optional
-from openai import OpenAI
 
 from helixdesk import HelixDeskEnv
 from helixdesk.agents import RuleAgent
@@ -55,7 +54,7 @@ def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> No
     print(f"[END] success={str(success).lower()} steps={steps} score={score:.3f} rewards={rewards_str}", flush=True)
 
 
-def get_llm_action(client: OpenAI, obs: np.ndarray, step: int) -> np.ndarray:
+def get_llm_action(client, obs: np.ndarray, step: int) -> np.ndarray:
     obs_summary = {
         "sentiment": round(float(obs[0]), 2),
         "keyword_flag": float(obs[1]),
@@ -115,6 +114,7 @@ def main() -> None:
 
     use_llm = bool(API_KEY)
     if use_llm:
+        from openai import OpenAI
         client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
     
     # Build agent for task grading
