@@ -1,38 +1,10 @@
-# Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
-dist/
-build/
-*.egg
-
-# Virtual environments
-venv/
-.venv/
-env/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Logs & outputs
-logs/
-*.csv
-
-# Pytest
+*.pyc
+*.pyo
 .pytest_cache/
-
-# Models
-*.zip
-helixdesk_ppo*
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Temp
-test_output.txt
-train_*_output.txt
+logs/*.csv
+*.txt
+!README.md
+!CHALLENGE.md
+!requirements.txt
+uv.lock

@@ -226,6 +226,24 @@ class EmailGenerator:
             templates = self._complaint_templates[category]
             body_text = templates[self.rng.integers(0, len(templates))]
 
+        # Generate contextual variables
+        last_names = ["Chen", "Smith", "Patel", "Johnson", "Garcia", "Kim", "Lee", "Davis", "Martinez", "Lopez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin", "White", "Thompson", "Brown"]
+        dates = ["March 15th", "last Tuesday", "yesterday", "April 2nd", "Monday", "the 1st of the month", "the weekend"]
+        products = ["ProPlan", "BasicSuite", "EnterpriseKit"]
+        
+        last_name = last_names[self.rng.integers(0, len(last_names))]
+        date_ref = dates[self.rng.integers(0, len(dates))]
+        product = products[self.rng.integers(0, len(products))]
+        order_num = f"HD-{self.rng.integers(10000, 99999)}"
+
+        # We must pull first_name earlier for the intro (we'll reuse it for sender later)
+        first_name = _FIRST_NAMES[self.rng.integers(0, len(_FIRST_NAMES))]
+        full_name = f"{first_name} {last_name}"
+
+        # Injecting into body text
+        intro = f"Hi, I'm {full_name} (order {order_num}). I've had issues with my {product} account since {date_ref}. "
+        body_text = intro + body_text
+
         if has_keyword_flag:
             kw_template = self._keyword_templates[
                 self.rng.integers(0, len(self._keyword_templates))
@@ -256,12 +274,12 @@ class EmailGenerator:
             true_priority = "normal"
 
         # --- Sender ---
-        first_name = _FIRST_NAMES[self.rng.integers(0, len(_FIRST_NAMES))]
         domain = _SENDER_DOMAINS[self.rng.integers(0, len(_SENDER_DOMAINS))]
         sender_email = f"{first_name.lower()}{self.rng.integers(10, 999)}@{domain}"
 
         # Generate deterministic ID from the seeded RNG (uuid4 is non-deterministic)
         id_bytes = self.rng.integers(0, 256, size=16, dtype=np.uint8)
+
         email_id = id_bytes.tobytes().hex()
 
         return EmailEvent(

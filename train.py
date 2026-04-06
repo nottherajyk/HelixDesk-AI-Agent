@@ -16,6 +16,13 @@ from helixdesk.agents import RuleAgent, RandomAgent
 from helixdesk.monitor import EpisodeLogger, TerminalDashboard
 
 
+try:
+    from stable_baselines3 import PPO
+    SB3_AVAILABLE = True
+except ImportError:
+    SB3_AVAILABLE = False
+
+
 def run(agent_type: str, n_episodes: int) -> None:
     """Run training loop with the specified agent.
 
@@ -28,9 +35,7 @@ def run(agent_type: str, n_episodes: int) -> None:
     dashboard = TerminalDashboard()
 
     if agent_type == "sb3":
-        try:
-            from stable_baselines3 import PPO
-        except ImportError:
+        if not SB3_AVAILABLE:
             print("ERROR: stable-baselines3 not installed.")
             print("Install with: pip install stable-baselines3")
             sys.exit(1)
