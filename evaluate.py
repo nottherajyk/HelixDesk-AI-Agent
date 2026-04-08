@@ -83,13 +83,14 @@ def evaluate(agent_type: str, n_episodes: int) -> None:
                 step_csat_scores.append(float(csat))
 
             # Track keyword misses & misclassifications from reward breakdown
-            breakdown = info.get("reward_breakdown", {})
-            if "keyword_flag_missed" in breakdown:
-                keyword_misses += 1
-            if "keyword_not_critical" in breakdown:
-                keyword_total += 1
-            if "misclassification" in breakdown:
-                misclassifications += 1
+            breakdown = info.get("reward_breakdown", [])
+            for event in breakdown:
+                if event["type"] == "keyword_flag_missed":
+                    keyword_misses += 1
+                if event["type"] == "keyword_not_critical":
+                    keyword_total += 1
+                if event["type"] == "misclassification":
+                    misclassifications += 1
 
             # Track workload balance
             employee_loads = [obs[15 + i * 2] for i in range(5)]
