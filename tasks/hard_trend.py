@@ -25,9 +25,9 @@ def grade(env, agent) -> float:
         obs, reward, terminated, truncated, info = env.step(action)
         done = terminated or truncated
         
-        breakdown = info.get("reward_breakdown", {})
+        breakdown = info.get("reward_breakdown", [])
         for event in breakdown:
-            if event == "trend_prevented":
+            if event["type"] == "trend_prevented":
                 trend_alerts_caught += 1
                 
         # Track true surge events instead of resolve_on_time
@@ -41,7 +41,7 @@ def grade(env, agent) -> float:
         overdue_count += info.get("overdue_count", 0)
         total_tickets = info.get("step", 1)
     
-    trend_score = trend_alerts_caught / max(total_surge_events, 1)
+    trend_score = min(1.0, trend_alerts_caught / max(total_surge_events, 1))
     csat_score = min(
         (sum(csat_scores) / max(len(csat_scores), 1)) / 4.5, 1.0
     )
@@ -49,4 +49,4 @@ def grade(env, agent) -> float:
         0.0, 1.0 - (overdue_count / max(total_tickets * 0.10, 1))
     )
     
-    return (trend_score + csat_score + overdue_score) / 3
+    return min(1.0, (trend_score + csat_score + overdue_score) / 3)
