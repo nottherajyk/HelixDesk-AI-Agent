@@ -23,3 +23,7 @@ server = "app:main"
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools]
+packages = ["helixdesk", "helixdesk.agents", "helixdesk.monitor", "helixdesk.simulator", "tasks"]
