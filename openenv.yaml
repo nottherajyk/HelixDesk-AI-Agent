@@ -8,6 +8,25 @@ port: 7860
 task: customer-support-triage
 tags: [openenv]
 entry_point: helixdesk.env:HelixDeskEnv
+
+reward:
+  type: continuous
+  range: [-1.0, 1.0]
+
+endpoints:
+  - path: /reset
+    method: POST
+  - path: /step
+    method: POST
+  - path: /state
+    method: GET
+  - path: /tasks
+    method: GET
+  - path: /grader
+    method: POST
+  - path: /health
+    method: GET
+
 tasks:
   - id: easy
     grader: tasks.easy_classify:grade
