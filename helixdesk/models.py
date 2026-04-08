@@ -172,9 +172,9 @@ class HelixReward(BaseModel):
     @classmethod
     def from_info(cls, total: float, info: dict[str, Any]) -> "HelixReward":
         """Build from step reward and info dict."""
-        breakdown = info.get("reward_breakdown", {})
+        breakdown = info.get("reward_breakdown", [])
         signals = [
-            RewardSignal(signal_type=k, value=v)
-            for k, v in breakdown.items()
+            RewardSignal(signal_type=ev["type"], value=ev["value"])
+            for ev in breakdown
         ]
         return cls(total=total, signals=signals)
