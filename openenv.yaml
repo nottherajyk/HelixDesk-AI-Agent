@@ -9,11 +9,11 @@ task: customer-support-triage
 tags: [openenv]
 entry_point: helixdesk.env:HelixDeskEnv
 tasks:
-  - id: easy_classify
+  - id: easy
     grader: tasks.easy_classify:grade
-  - id: medium_sla
+  - id: medium
     grader: tasks.medium_sla:grade
-  - id: hard_trend
+  - id: hard
     grader: tasks.hard_trend:grade
-  - id: expert_full
+  - id: expert
     grader: tasks.expert_full:grade
