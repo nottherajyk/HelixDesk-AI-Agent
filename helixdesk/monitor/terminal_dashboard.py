@@ -71,9 +71,9 @@ class TerminalDashboard:
             )
 
         # Format reward breakdown
-        breakdown = info.get("reward_breakdown", {})
+        breakdown = info.get("reward_breakdown", [])
         if breakdown:
-            parts = [f"{k} {v:+.2f}" for k, v in breakdown.items()]
+            parts = [f"{ev['type']} {ev['value']:+.2f}" for ev in breakdown]
             self._last_reward_str = f"{reward:+.2f}  [{', '.join(parts)}]"
         else:
             self._last_reward_str = f"{reward:+.2f}"
