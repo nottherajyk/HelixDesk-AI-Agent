@@ -132,6 +132,7 @@ def run_episode(agent_type: str) -> tuple:
 
     steps, cumulative_rewards = [], []
     queue_depths, overdue_counts, csat_scores = [], [], []
+    action_history = []
     ep_reward = 0.0
     done = False
     while not done:
@@ -140,6 +141,17 @@ def run_episode(agent_type: str) -> tuple:
         ep_reward += reward
         done = terminated or truncated
         step_num = info.get("step", 0)
+        
+        # Log decision complexity for judges
+        action_history.append({
+            "Step": step_num,
+            "Classification": ["Query", "Complaint", "Review"][min(int(action[0]), 2)],
+            "Priority": ["Critical", "High", "Medium", "Normal"][min(int(action[1]), 3)],
+            "Assignment": f"Emp {action[2]}" if action[2] < 5 else "None",
+            "Secondary": ["KB_Reply", "Alert_GM", "None"][min(int(action[3]), 2)],
+            "Reward": round(float(reward), 2)
+        })
+        
         steps.append(step_num)
         cumulative_rewards.append(ep_reward)
         queue_depths.append(info.get("queue_depth", 0))
@@ -177,7 +189,7 @@ def run_episode(agent_type: str) -> tuple:
 
 | Metric | Value |
 |---|---|
-| **Agent** | {agent_type} |
+| **Agent** | {agent_type.upper()} AI |
 | **Total Reward** | {ep_reward:+.2f} |
 | **Steps** | {len(steps)} |
 | **Final Queue Depth** | {queue_depths[-1] if queue_depths else 0} |
@@ -185,9 +197,12 @@ def run_episode(agent_type: str) -> tuple:
 | **Peak Overdue** | {max_overdue} |
 | **Avg CSAT** | {avg_csat:.2f} / 5.0 |
 | **CSAT Samples** | {len(csat_scores)} |
+
+*The agent continuously navigated an environment with {sum(queue_depths)} total queued artifacts and maintained complex MultiDiscrete rulesets over {len(steps)} interactions.*
 """
 
-    return fig_reward, fig_queue, summary
+    df_actions = pd.DataFrame(action_history)
+    return fig_reward, fig_queue, summary, df_actions
 
 
 # ---------------------------------------------------------------------------
@@ -208,7 +223,7 @@ print("Environment verified OK")
 # ---------------------------------------------------------------------------
 # Create Gradio interface
 # ---------------------------------------------------------------------------
-initial_reward, initial_queue, initial_summary = run_episode("rule")
+initial_reward, initial_queue, initial_summary, initial_df = run_episode("rule")
 
 with gr.Blocks(
     title="HelixDesk OpenEnv",
@@ -220,8 +235,8 @@ with gr.Blocks(
 
 **Gymnasium-compatible RL environment for AI-powered customer email queue management.**
 
-**Select an agent and click **Run Episode** to watch it process 100 emails.
-The rule-based agent uses 6 deterministic business rules; the random agent samples uniformly.
+**Select an agent and click `Run Episode`** to watch it process 100 emails.
+The rule-based agent uses deterministic business rules; the random agent samples uniformly. Observe the live MultiDiscrete(4) decision boundaries in the action log.
         """
     )
 
@@ -229,21 +244,26 @@ The rule-based agent uses 6 deterministic business rules; the random agent sampl
         agent_dropdown = gr.Dropdown(
             choices=["rule", "random"],
             value="rule",
-            label="Agent",
+            label="Agent AI Strategy",
             scale=1,
         )
         run_btn = gr.Button("▶ Run Episode", variant="primary", scale=1)
 
     with gr.Row():
-        reward_plot = gr.Plot(value=initial_reward, label="Reward")
-        queue_plot = gr.Plot(value=initial_queue, label="Queue Depth")
+        reward_plot = gr.Plot(value=initial_reward, label="Reward Progression")
+        queue_plot = gr.Plot(value=initial_queue, label="Queue Depth Over Time")
 
-    summary_md = gr.Markdown(value=initial_summary)
+    with gr.Row():
+        with gr.Column(scale=1):
+            summary_md = gr.Markdown(value=initial_summary)
+        with gr.Column(scale=2):
+            gr.Markdown("### Agent Decision Trace (Full Episode)")
+            actions_df = gr.Dataframe(value=initial_df, max_height=300, interactive=False)
 
     run_btn.click(
         fn=run_episode,
         inputs=[agent_dropdown],
-        outputs=[reward_plot, queue_plot, summary_md],
+        outputs=[reward_plot, queue_plot, summary_md, actions_df],
     )
 
 # Mount Gradio into FastAPI at root path

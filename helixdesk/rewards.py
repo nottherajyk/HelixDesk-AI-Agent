@@ -169,6 +169,43 @@ class RewardFunction:
                     "Flagged for review despite low complexity",
                 ))
 
+        # 8. Agentic behavior: Conflicting Signals / Ambiguity Resolution
+        is_ambiguous = (email.sentiment_intensity > 0.6 and not email.has_keyword_flag) or \
+                       (email.has_keyword_flag and email.sentiment_intensity > 0.8)
+        
+        if is_ambiguous:
+            if int(action[0]) == 2:  # safely flagged for review
+                events.append(RewardEvent(
+                    "ambiguity_resolved",
+                    0.5,
+                    email.email_id,
+                    "Successfully flagged ambiguous/conflicting email for review."
+                ))
+            else:
+                events.append(RewardEvent(
+                    "acted_on_ambiguity",
+                    -0.5,
+                    email.email_id,
+                    "Agent acted on conflicting signals without escalating."
+                ))
+
+        # 9. Escalation tradeoff / Delayed consequences risk
+        if int(action[1]) == 0 and int(action[0]) == 1: # critical complaint
+            if int(action[2]) != 0: # not assigned to senior (emp 0)
+                events.append(RewardEvent(
+                    "risky_assignment",
+                    -0.3,
+                    email.email_id,
+                    "Critical complaint assigned to junior employee."
+                ))
+            if int(action[3]) != 1: # didn't alert GM
+                events.append(RewardEvent(
+                    "gm_not_alerted",
+                    -0.2,
+                    email.email_id,
+                    "Failed to alert GM for critical complaint."
+                ))
+
         # Sum and clip
         total = sum(e.value for e in events)
         total = float(np.clip(total, -1.0, 1.0))

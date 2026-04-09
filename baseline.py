@@ -149,13 +149,22 @@ def run_baseline():
     # Results matrix
     results: dict[str, dict[str, float]] = {}
 
+    seeds = [42, 100, 2026]
+
     for agent_name, agent in agents.items():
         results[agent_name] = {}
         for task_name, task_module in tasks.items():
             console.print(f"  Running [cyan]{task_name}[/cyan] with [green]{agent_name}[/green]...", end=" ")
-            score = task_module.grade(env=env, agent=agent)
-            results[agent_name][task_name] = score
-            console.print(f"[bold]{score:.3f}[/bold]")
+            
+            # Evaluate across multiple seeds for reproducibility
+            scores = []
+            for seed in seeds:
+                score = task_module.grade(env=env, agent=agent, seed=seed)
+                scores.append(score)
+            
+            mean_score = float(np.mean(scores))
+            results[agent_name][task_name] = mean_score
+            console.print(f"[bold]{mean_score:.3f}[/bold]")
 
     # Build results table
     table = Table(title="HelixDesk Baseline Scores", border_style="bright_green")
