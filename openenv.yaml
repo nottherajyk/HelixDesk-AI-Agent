@@ -14,28 +14,33 @@ reward:
   range: [-1.0, 1.0]
 
 endpoints:
-  - path: /reset
-    method: POST
-  - path: /step
-    method: POST
-  - path: /state
-    method: GET
-  - path: /tasks
-    method: GET
-  - path: /grader
-    method: POST
-  - path: /health
-    method: GET
+  
+path: /reset
+  method: POST
+path: /step
+method: POST
+path: /state
+method: GET
+path: /tasks
+method: GET
+path: /grader
+method: POST
+path: /health
+method: GET
 
 tasks:
-  - id: easy
-    grader: tasks.easy_classify:grade
+  
+id: easy
+  grader: tasks.easy_classify:grade
 
-  - id: medium
-    grader: tasks.medium_sla:grade
+  
+id: medium
+  grader: tasks.medium_sla:grade
 
-  - id: hard
-    grader: tasks.hard_trend:grade
+  
+id: hard
+  grader: tasks.hard_trend:grade
 
-  - id: expert
-    grader: tasks.expert_full:grade
+  
+id: expert
+  grader: tasks.expert_full:grade
