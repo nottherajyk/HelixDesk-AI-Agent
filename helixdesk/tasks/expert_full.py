@@ -28,4 +28,10 @@ def grade(env, agent, seed=42) -> float:
         steps += 1
         done = term or trunc
         
-    return float(max(0.0, 1.0 - score_penalty))
+    # Calculate the raw score, bounded to a minimum of 0.0
+    raw_score = float(max(0.0, 1.0 - score_penalty))
+    
+    # Clamp the score strictly between 0.01 and 0.99 to satisfy OpenEnv validation
+    clamped_score = max(0.01, min(0.99, raw_score))
+    
+    return clamped_score
