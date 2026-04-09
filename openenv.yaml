@@ -1,17 +1,100 @@
-spec_version: 1
-name: HelixDesk OpenEnv
-version: 1.0.0
-type: space
-runtime: fastapi
-app: app:app
-port: 7860
-task: customer-support-triage
-tags: [openenv]
-entry_point: helixdesk.env:HelixDeskEnv
+name: helixdesk-openenv
+version: "1.0.0"
+description: >
+  A reinforcement learning environment simulating an AI customer support triage desk.
+  An agent receives incoming customer emails and tickets, classifies the issue type,
+  assigns priority based on SLA and urgency, routes tickets to the right queue or
+  employee, detects trends across repeated complaints, and recommends next actions.
+  The environment simulates realistic support operations with noisy inputs, mixed
+  customer tiers, incomplete information, and time-sensitive escalation handling.
+
+tags:
+  - openenv
+  - customer-support
+  - triage
+  - sla
+  - ticket-routing
+  - reinforcement-learning
+
+observation_space:
+  type: dict
+  description: >
+    SupportObservation containing incoming_tickets, customer_profiles, sla_status,
+    ticket_history, routing_options, escalation_flags, trend_signals, employee_load,
+    step, done, reward, cumulative_reward, and message.
+
+action_space:
+  type: dict
+  description: >
+    SupportAction with action_type field such as classify_ticket, assign_priority,
+    route_ticket, request_human_review, escalate_ticket, suggest_response,
+    detect_trend, update_status, resolve_ticket, or noop.
+
+tasks:
+  - id: easy
+    name: "Single Ticket Classification"
+    description: >
+      Triage a single customer support ticket by identifying its category,
+      assigning the correct priority, and selecting the appropriate queue.
+    difficulty: easy
+    max_steps: 10
+    reward_range: [0.0, 1.0]
+    grader:
+      type: llm
+      prompt_template: >
+        Score the agent from 0.0 to 1.0 based on whether the support ticket was
+        correctly classified, assigned the right priority, and routed appropriately.
+
+  - id: medium
+    name: "SLA-Aware Support Triage"
+    description: >
+      Investigate multiple incoming tickets with different customer tiers and SLA
+      requirements. Prioritize urgent issues correctly and avoid unnecessary escalation.
+    difficulty: medium
+    max_steps: 15
+    reward_range: [0.0, 1.0]
+    grader:
+      type: llm
+      prompt_template: >
+        Score the agent from 0.0 to 1.0 based on classification accuracy, SLA-aware
+        prioritization, and correct escalation or routing decisions.
+
+  - id: hard
+    name: "Trend Detection and Queue Management"
+    description: >
+      Triage a noisy queue of support tickets, detect repeated issue patterns,
+      surface emerging trends, and balance ticket handling across available staff.
+    difficulty: hard
+    max_steps: 20
+    reward_range: [0.0, 1.0]
+    grader:
+      type: llm
+      prompt_template: >
+        Score the agent from 0.0 to 1.0 based on trend detection, queue handling,
+        prioritization quality, and the correctness of support triage decisions.
+
+  - id: expert
+    name: "Full Support Resolution Workflow"
+    description: >
+      Handle complex multi-ticket scenarios involving SLA risk, customer frustration,
+      repeated incidents, routing bottlenecks, and escalation logic. Optimize for
+      both resolution quality and operational efficiency.
+    difficulty: expert
+    max_steps: 25
+    reward_range: [0.0, 1.0]
+    grader:
+      type: llm
+      prompt_template: >
+        Score the agent from 0.0 to 1.0 based on end-to-end support handling,
+        prioritization, escalation judgment, trend awareness, and final resolution quality.
 
 reward:
-  type: continuous
-  range: [-1.0, 1.0]
+  range: [0.0, 1.0]
+  dense: true
+  description: >
+    Dense step rewards for correct classification, SLA prioritization, routing,
+    escalation judgment, and trend detection. Final reward is based on overall
+    grader score and efficiency of the support workflow.
 
 endpoints:
   - path: /reset
@@ -24,15 +107,7 @@ endpoints:
     method: GET
   - path: /grader
     method: POST
+  - path: /baseline
+    method: POST
   - path: /health
     method: GET
-
-tasks:
-  - id: easy
-    grader: tasks.easy_classify:grade
-  - id: medium
-    grader: tasks.medium_sla:grade
-  - id: hard
-    grader: tasks.hard_trend:grade
-  - id: expert
-    grader: tasks.expert_full:grade
