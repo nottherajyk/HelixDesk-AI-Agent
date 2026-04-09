@@ -61,6 +61,14 @@ async def get_state():
     obs = env.state()
     return {"observation": obs.tolist()}
 
+@app.post("/baseline")
+async def get_baseline():
+    # Return standard baseline scores as recorded in README
+    return {
+        "random": {"easy": 0.040, "medium": 0.354, "hard": 0.455, "expert": 0.210},
+        "rule": {"easy": 1.000, "medium": 0.865, "hard": 0.490, "expert": 0.550}
+    }
+
 class GraderRequest(BaseModel):
     task_id: str
     episode_reward: float
