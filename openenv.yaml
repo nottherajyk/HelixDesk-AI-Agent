@@ -1,5 +1,12 @@
+spec_version: 1
 name: helixdesk-openenv
 version: "1.0.0"
+type: space
+runtime: fastapi
+app: app:app
+port: 7860
+task: customer-support-triage
+entry_point: helixdesk.env:HelixDeskEnv
 description: >
   A reinforcement learning environment simulating an AI customer support triage desk.
   An agent receives incoming customer emails and tickets, classifies the issue type,
