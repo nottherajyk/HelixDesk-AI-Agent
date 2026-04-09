@@ -29,29 +29,13 @@ endpoints:
 
 tasks:
   - id: easy
-    difficulty: easy
-    max_steps: 10
-    grader:
-      type: llm
-      prompt_template: "Score the customer support triage 0.0 to 1.0 based on correct classification..."
+    grader: tasks.easy_classify:grade
 
   - id: medium
-    difficulty: medium
-    max_steps: 15
-    grader:
-      type: llm
-      prompt_template: "Score the SLA-aware support triage 0.0 to 1.0 based on accuracy and priority handling..."
+    grader: tasks.medium_sla:grade
 
   - id: hard
-    difficulty: hard
-    max_steps: 20
-    grader:
-      type: llm
-      prompt_template: "Score the trend analysis and support triage 0.0 to 1.0 based on accuracy..."
+    grader: tasks.hard_trend:grade
 
   - id: expert
-    difficulty: hard
-    max_steps: 25
-    grader:
-      type: llm
-      prompt_template: "Score the expert-level full support resolution 0.0 to 1.0 based on all criteria..."
+    grader: tasks.expert_full:grade
