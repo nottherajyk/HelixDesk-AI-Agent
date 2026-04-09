@@ -38,7 +38,7 @@ tasks:
       assigning the correct priority, and selecting the appropriate queue.
     difficulty: easy
     max_steps: 10
-    reward_range: [0.0, 1.0]
+    reward_range: [0.02, 0.98]
     grader:
       type: llm
       prompt_template: >
@@ -52,7 +52,7 @@ tasks:
       requirements. Prioritize urgent issues correctly and avoid unnecessary escalation.
     difficulty: medium
     max_steps: 15
-    reward_range: [0.0, 1.0]
+    reward_range: [0.02, 0.98]
     grader:
       type: llm
       prompt_template: >
@@ -66,7 +66,7 @@ tasks:
       surface emerging trends, and balance ticket handling across available staff.
     difficulty: hard
     max_steps: 20
-    reward_range: [0.0, 1.0]
+    reward_range: [0.02, 0.98]
     grader:
       type: llm
       prompt_template: >
@@ -81,7 +81,7 @@ tasks:
       both resolution quality and operational efficiency.
     difficulty: expert
     max_steps: 25
-    reward_range: [0.0, 1.0]
+    reward_range: [0.02, 0.98]
     grader:
       type: llm
       prompt_template: >
@@ -89,7 +89,7 @@ tasks:
         prioritization, escalation judgment, trend awareness, and final resolution quality.
 
 reward:
-  range: [0.0, 1.0]
+  range: [0.02, 0.98]
   dense: true
   description: >
     Dense step rewards for correct classification, SLA prioritization, routing,
