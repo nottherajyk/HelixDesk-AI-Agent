@@ -39,4 +39,7 @@ def grade(env, agent, seed=42) -> float:
     csat = info.get("csat_score", 5.0)
     final_score = (score + (csat / 5.0)) / 2.0
     
-    return float(max(0.0, min(1.0, final_score)))
+    # Clamp the score strictly between 0.01 and 0.99 to satisfy OpenEnv validation
+    clamped_score = max(0.01, min(0.99, float(final_score)))
+    
+    return clamped_score
