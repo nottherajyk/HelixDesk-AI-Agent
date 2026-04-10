@@ -46,11 +46,7 @@ tasks:
     difficulty: easy
     max_steps: 10
     reward_range: [0.02, 0.98]
-    grader:
-      type: llm
-      prompt_template: >
-        Score the agent from 0.0 to 1.0 based on whether the support ticket was
-        correctly classified, assigned the right priority, and routed appropriately.
+    grader: helixdesk.tasks.easy_classify:grade
 
   - id: medium
     name: "SLA-Aware Support Triage"
@@ -60,11 +56,7 @@ tasks:
     difficulty: medium
     max_steps: 15
     reward_range: [0.02, 0.98]
-    grader:
-      type: llm
-      prompt_template: >
-        Score the agent from 0.0 to 1.0 based on classification accuracy, SLA-aware
-        prioritization, and correct escalation or routing decisions.
+    grader: helixdesk.tasks.medium_sla:grade
 
   - id: hard
     name: "Trend Detection and Queue Management"
@@ -74,11 +66,7 @@ tasks:
     difficulty: hard
     max_steps: 20
     reward_range: [0.02, 0.98]
-    grader:
-      type: llm
-      prompt_template: >
-        Score the agent from 0.0 to 1.0 based on trend detection, queue handling,
-        prioritization quality, and the correctness of support triage decisions.
+    grader: helixdesk.tasks.hard_trend:grade
 
   - id: expert
     name: "Full Support Resolution Workflow"
@@ -89,11 +77,7 @@ tasks:
     difficulty: expert
     max_steps: 25
     reward_range: [0.02, 0.98]
-    grader:
-      type: llm
-      prompt_template: >
-        Score the agent from 0.0 to 1.0 based on end-to-end support handling,
-        prioritization, escalation judgment, trend awareness, and final resolution quality.
+    grader: helixdesk.tasks.expert_full:grade
 
 reward:
   range: [0.02, 0.98]
