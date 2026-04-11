@@ -21,12 +21,18 @@ MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME") # For docker-based envs
 
 # Task and Benchmark identifiers
-TASK_NAME = os.getenv("HELIXDESK_TASK") or "medium_sla"
 BENCHMARK = "helixdesk-openenv"
-MAX_STEPS = 25 # Aligned with manifest expert task
 TEMPERATURE = 0.1
 MAX_TOKENS = 100
 SUCCESS_SCORE_THRESHOLD = 0.5
+
+# Per-task max_steps aligned with openenv.yaml
+MAX_STEPS_MAP = {
+    "easy": 10,
+    "medium": 15,
+    "hard": 20,
+    "expert": 25,
+}
 
 SYSTEM_PROMPT = textwrap.dedent(
     """
@@ -112,61 +118,74 @@ def get_task_grader_score(task_name: str, agent) -> float:
         return 0.0
 
 
-def main() -> None:
+def run_episode(task_id: str) -> None:
     client = None
     if API_KEY:
         client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 
-    env = HelixDeskEnv()
-    obs, info = env.reset(seed=42)
-
-    # Agent setup
-    if client:
-        class MovingAgent:
-            def __init__(self, obs_space, act_space):
-                self.observation_space = obs_space
-                self.action_space = act_space
-            def reset(self): pass
-            def act(self, obs): return get_llm_action(client, obs, 0)
-        agent = MovingAgent(env.observation_space, env.action_space)
-    else:
-        agent = RuleAgent(env.observation_space, env.action_space)
-
+    max_steps = MAX_STEPS_MAP.get(task_id, 25)
     history_rewards: List[float] = []
     steps_taken = 0
     score = 0.0
     success = False
-
-    log_start(task=TASK_NAME, env=BENCHMARK, model=MODEL_NAME)
+    env = None
 
     try:
-        for step in range(1, MAX_STEPS + 1):
+        env = HelixDeskEnv()
+        obs, info = env.reset(seed=42)
+
+        # Agent setup
+        if client:
+            class MovingAgent:
+                def __init__(self, obs_space, act_space):
+                    self.observation_space = obs_space
+                    self.action_space = act_space
+                def reset(self): pass
+                def act(self, obs): return get_llm_action(client, obs, 0)
+            agent = MovingAgent(env.observation_space, env.action_space)
+        else:
+            agent = RuleAgent(env.observation_space, env.action_space)
+
+        log_start(task=task_id, env=BENCHMARK, model=MODEL_NAME)
+
+        for step in range(1, max_steps + 1):
             action = agent.act(obs)
             obs, reward, terminated, truncated, info = env.step(action)
-            
+
             done = terminated or truncated
             action_str = f"[{action[0]},{action[1]},{action[2]},{action[3]}]"
-            
+
             history_rewards.append(float(reward))
             steps_taken = step
-            
+
             log_step(step=step, action=action_str, reward=float(reward), done=done, error=None)
-            
+
             if done:
                 break
 
         # Calculate final normalized score [0, 1] using task grader
-        score = get_task_grader_score(TASK_NAME, agent)
+        score = get_task_grader_score(task_id, agent)
         score = min(max(float(score), 0.0), 1.0)
         success = score >= SUCCESS_SCORE_THRESHOLD
 
     except Exception as e:
-        print(f"[DEBUG] Inference failure: {e}", flush=True)
+        print(f"[DEBUG] Inference failure for task={task_id}: {e}", flush=True)
     finally:
-        try:
-            env.close()
-        except: pass
+        if env is not None:
+            try:
+                env.close()
+            except Exception:
+                pass
         log_end(success=success, steps=steps_taken, score=score, rewards=history_rewards)
+
+
+def main() -> None:
+    for task_id in ["easy", "medium", "hard", "expert"]:
+        try:
+            run_episode(task_id)
+        except Exception as e:
+            print(f"[DEBUG] Catastrophic failure for task={task_id}: {e}", flush=True)
+            log_end(success=False, steps=0, score=0.0, rewards=[])
 
 
 if __name__ == "__main__":
