@@ -67,7 +67,8 @@ def log_step(step: int, action: str, reward: float, done: bool, error: Optional[
 
 
 def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
-    # Keep score strictly inside (0, 1) for downstream validators that reject boundary values.
+    # Keep score strictly inside (0, 1): 0.001/0.999 preserves near-boundary intent while
+    # avoiding exact 0.0/1.0 values that can be rejected by strict downstream validators.
     score = max(MIN_VALID_SCORE, min(MAX_VALID_SCORE, float(score)))
     rewards_str = ",".join(f"{r:.4f}" for r in rewards)
     print(f"[END] success={str(success).lower()} steps={steps} score={score:.4f} rewards={rewards_str}", flush=True)
