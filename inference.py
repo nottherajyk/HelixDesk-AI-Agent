@@ -25,6 +25,7 @@ BENCHMARK = "helixdesk-openenv"
 TEMPERATURE = 0.1
 MAX_TOKENS = 100
 SUCCESS_SCORE_THRESHOLD = 0.5
+DEFAULT_SCORE = 0.5
 TASKS = ["easy", "medium", "hard", "expert"]
 
 # Per-task max_steps aligned with openenv.yaml
@@ -63,6 +64,7 @@ def log_step(step: int, action: str, reward: float, done: bool, error: Optional[
 
 
 def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
+    # Keep score strictly inside (0, 1) for downstream validators that reject boundary values.
     score = max(0.001, min(0.999, float(score)))
     rewards_str = ",".join(f"{r:.4f}" for r in rewards)
     print(f"[END] success={str(success).lower()} steps={steps} score={score:.4f} rewards={rewards_str}", flush=True)
@@ -121,7 +123,7 @@ def get_task_grader_score(task_name: str, agent) -> float:
 
 
 def run_episode(task_id: str, seed: int = 42) -> None:
-    score = 0.5
+    score = DEFAULT_SCORE
     success = False
     steps_taken = 0
     history_rewards: List[float] = []
